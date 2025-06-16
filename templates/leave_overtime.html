@@ -1,0 +1,154 @@
+{% extends 'userlayout.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <h3>请假 / 加班申请</h3>
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>表单校验失败：</strong>
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'leave_overtime' %}" class="form-horizontal">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">申请类型</label>
+                <div class="col-sm-6">
+                    {{ form.type_choice }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">开始时间</label>
+                <div class="col-sm-6">
+                    {{ form.start_time }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">结束时间</label>
+                <div class="col-sm-6">
+                    {{ form.end_time }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">事由</label>
+                <div class="col-sm-6">
+                    {{ form.reason }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-6">
+                    <button type="submit" class="btn btn-success">提交申请</button>
+                </div>
+            </div>
+        </form>
+
+        <hr>
+        <h4>📋 我的申请记录</h4>
+
+        <!-- ✅ 请假记录 -->
+        {% if leave_records %}
+            <h5>🟩 请假记录</h5>
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>原因</th>
+                    <th>状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in leave_records %}
+                    <tr>
+                        <td>{{ item.start_time }}</td>
+                        <td>{{ item.end_time }}</td>
+                        <td>{{ item.reason }}</td>
+                        <td>
+                            {% if item.status == "pending" %}
+                                <span style="color: orange;">待审批</span>
+                            {% elif item.status == "approved" %}
+                                <span style="color: green;">已通过</span>
+                            {% else %}
+                                <span style="color: red;">已拒绝</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <!-- ✅ 加班记录 -->
+        {% if overtime_records %}
+            <h5>🟦 加班记录</h5>
+            <table class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>原因</th>
+                    <th>状态</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in overtime_records %}
+                    <tr>
+                        <td>{{ item.start_time }}</td>
+                        <td>{{ item.end_time }}</td>
+                        <td>{{ item.reason }}</td>
+                        <td>
+                            {% if item.status == "pending" %}
+                                <span style="color: orange;">待审批</span>
+                            {% elif item.status == "approved" %}
+                                <span style="color: green;">已通过</span>
+                            {% else %}
+                                <span style="color: red;">已拒绝</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+    </div>
+
+    <!-- ✅ 提交成功弹窗 -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="border-left: 5px solid green;">
+                <div class="modal-header">
+                    <h4 class="modal-title">🎉 提交成功</h4>
+                </div>
+                <div class="modal-body">
+                    您的申请已成功提交，管理员正在审核中 🍵
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">我知道啦</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'js/jquery-3.7.0.min.js' %}"></script>
+    <script src="{% static 'plugins/bootstrap-3.4.1-dist/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+
+    {% if success %}
+        <script>
+            $(function () {
+                $('#successModal').modal('show');
+            });
+        </script>
+    {% endif %}
+{% endblock %}

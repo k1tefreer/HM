@@ -1,0 +1,207 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                近30天考勤打卡记录（部门筛选）
+            </div>
+
+            <div class="panel-body">
+                <form method="get" class="form-inline" style="margin-bottom: 15px;">
+                    <label for="dept">选择部门：</label>
+                    <select name="dept" id="dept" class="form-control" onchange="this.form.submit()">
+                        <option value="">全部部门</option>
+                        {% for dept in dept_list %}
+                            <option value="{{ dept.id }}" {% if dept.id == selected_dept %}selected{% endif %}>
+                                {{ dept.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+                <div style="overflow-x:auto;">
+                    <table class="table table-bordered table-striped table-hover text-center">
+                        <thead>
+                        <tr>
+                            <th>员工</th>
+                            {% for date in date_list %}
+                                <th>{{ date|date:"m-d" }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in attendance_data %}
+                            <tr>
+                                <td>{{ row.user.name }}</td>
+                                {% for mark in row.records %}
+                                    <td>{% if mark == "√" %}<span style="color:green;">√</span>{% else %}
+                                        <span style="color:red;">×</span>{% endif %}</td>
+                                {% endfor %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="{{ date_list|length|add:1 }}">暂无数据</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 👇 模拟请假和加班审批区域 -->
+        <!-- 请假审批区域（带状态选择） -->
+        <form method="post" action="/attendance/leave/update/" onsubmit="return confirmApproval(this);">
+            {% csrf_token %}
+            <div class="panel panel-default">
+                <div class="panel-heading">📌 请假审批</div>
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>申请人</th>
+                        <th>请假类型</th>
+                        <th>时间范围</th>
+                        <th>原因</th>
+                        <th>状态</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for leave in leaves %}
+                        <tr>
+                            <td>{{ leave.user.name }}</td>
+                            <td>{{ leave.leave_type }}</td>
+                            <td>{{ leave.start_time }} ~ {{ leave.end_time }}</td>
+                            <td>{{ leave.reason }}</td>
+                            <td>
+                                <select name="status_{{ leave.id }}" class="form-control input-sm approval-select">
+                                    <option value="pending" {% if leave.status == "pending" %}selected{% endif %}>
+                                        待审批
+                                    </option>
+                                    <option value="approved" {% if leave.status == "approved" %}selected{% endif %}>
+                                        已通过
+                                    </option>
+                                    <option value="rejected" {% if leave.status == "rejected" %}selected{% endif %}>
+                                        已拒绝
+                                    </option>
+
+                                </select>
+                                <input type="hidden" name="leave_ids[]" value="{{ leave.id }}">
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div style="text-align: right; padding: 10px;">
+                    <button type="submit" class="btn btn-primary btn-sm btn-submit">提交请假审批</button>
+                    <button type="button" class="btn btn-warning btn-sm btn-edit" style="display:none;"
+                            onclick="enableEdit(this.form)">编辑
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- ✅ 加班审批表单 -->
+        <form method="post" action="/attendance/overtime/update/" onsubmit="return confirmApproval(this);">
+            {% csrf_token %}
+            <div class="panel panel-default">
+                <div class="panel-heading">📌 加班审批</div>
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>申请人</th>
+                        <th>加班时间</th>
+                        <th>原因</th>
+                        <th>状态</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for ot in overtimes %}
+                        <tr>
+                            <td>{{ ot.user.name }}</td>
+                            <td>{{ ot.start_time }} ~ {{ ot.end_time }}</td>
+                            <td>{{ ot.reason }}</td>
+                            <td>
+                                <select name="status_{{ ot.id }}" class="form-control input-sm approval-select">
+                                    <option value="pending" {% if ot.status == "pending" %}selected{% endif %}>
+                                        待审批
+                                    </option>
+                                    <option value="approved" {% if ot.status == "approved" %}selected{% endif %}>
+                                        已通过
+                                    </option>
+                                    <option value="rejected" {% if ot.status == "rejected" %}selected{% endif %}>
+                                        已拒绝
+                                    </option>
+
+                                </select>
+                                <input type="hidden" name="overtime_ids[]" value="{{ ot.id }}">
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div style="text-align: right; padding: 10px;">
+                    <button type="submit" class="btn btn-primary btn-sm btn-submit">提交加班审批</button>
+                    <button type="button" class="btn btn-warning btn-sm btn-edit" style="display:none;"
+                            onclick="enableEdit(this.form)">编辑
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- <script>
+        function confirmApproval(form) {
+            const confirmed = confirm("确定要提交审批状态吗？");
+            if (confirmed) {
+                const selects = form.querySelectorAll("select.approval-select");
+                selects.forEach(sel => sel.setAttribute("disabled", "disabled"));
+                form.querySelector(".btn-submit").style.display = "none";
+                form.querySelector(".btn-edit").style.display = "inline-block";
+            }
+            return confirmed;
+        }
+
+        function enableEdit(form) {
+            const selects = form.querySelectorAll("select.approval-select");
+            selects.forEach(sel => sel.removeAttribute("disabled"));
+            form.querySelector(".btn-submit").style.display = "inline-block";
+            form.querySelector(".btn-edit").style.display = "none";
+        }
+    </script> -->
+
+    <script>
+        window.onload = function () {
+            console.log("🔒 页面加载完成，锁定审批项");
+            document.querySelectorAll("form[onsubmit]").forEach(form => {
+                const selects = form.querySelectorAll("select.approval-select");
+                selects.forEach(sel => sel.setAttribute("disabled", "disabled"));
+                form.querySelector(".btn-submit").style.display = "none";
+                form.querySelector(".btn-edit").style.display = "inline-block";
+            });
+        }
+
+        function confirmApproval(form) {
+            const confirmed = confirm("确定要提交审批状态吗？");
+            if (confirmed) {
+                // ✅ 提交前移除 disabled 才能让 select 的值随表单提交
+                const selects = form.querySelectorAll("select.approval-select");
+                selects.forEach(sel => sel.removeAttribute("disabled"));
+            }
+            return confirmed;
+        }
+
+        function enableEdit(form) {
+            const selects = form.querySelectorAll("select.approval-select");
+            selects.forEach(sel => sel.removeAttribute("disabled"));
+            form.querySelector(".btn-submit").style.display = "inline-block";
+            form.querySelector(".btn-edit").style.display = "none";
+        }
+    </script>
+
+
+
+{% endblock %}
+
+
+

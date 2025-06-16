@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>选择登录身份</title>
+    <link rel="stylesheet"
+          href="/static/plugins/bootstrap-3.4.1-dist/bootstrap-3.4.1-dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f0f8ff;
+            padding-top: 150px;
+            text-align: center;
+        }
+        .btn {
+            width: 200px;
+            height: 60px;
+            font-size: 20px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>请选择登录身份</h2>
+
+    <!-- 方法二：使用绝对路径测试 -->
+    <a href="/login/admin/" class="btn btn-primary" onclick="console.log('点击了管理员')"> 管理员 </a>
+    <a href="/login/user/" class="btn btn-success" onclick="console.log('点击了员工')"> 员工 </a>
+
+    <!-- 方法三：使用 JS 打印验证是否点击成功 -->
+    <script>
+        document.querySelectorAll('a').forEach(function(btn) {
+            btn.addEventListener('click', function(event) {
+                console.log("跳转前点击了按钮：", event.target.innerText.trim());
+            });
+        });
+    </script>
+</body>
+</html>

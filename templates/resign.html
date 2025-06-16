@@ -1,0 +1,64 @@
+{% extends 'userlayout.html' %}
+
+{% block content %}
+<div class="container">
+    <h3>离职申请</h3>
+
+    <form method="post" enctype="multipart/form-data">  <!-- ✅ 关键：支持文件上传 -->
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>离职原因：</label>
+            {{ form.reason }}
+        </div>
+
+        <div class="form-group">
+            <label>上传附件（可选）：</label>
+            {{ form.file }}
+        </div>
+
+        <button type="submit" class="btn btn-danger">提交申请</button>
+    </form>
+
+    <hr>
+    <h4>我的离职申请记录</h4>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>申请时间</th>
+            <th>离职原因</th>
+            <th>状态</th>
+            <th>附件</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for obj in records %}
+            <tr>
+                <td>{{ obj.submit_date }}</td>
+                <td>{{ obj.reason }}</td>
+                <td>
+                    {% if obj.status == "pending" %}
+                        <span class="text-warning">待审批</span>
+                    {% elif obj.status == "approved" %}
+                        <span class="text-success">已通过</span>
+                    {% elif obj.status == "rejected" %}
+                        <span class="text-danger">已拒绝</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if obj.file %}
+                        <a href="{{ obj.file.url }}" target="_blank">查看附件</a>
+                    {% else %}
+                        无
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">暂无离职申请记录</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'userlayout.html' %}
+
+{% block content %}
+<div class="container">
+    <h3>出差报销申请</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">提交报销</button>
+    </form>
+
+    <hr>
+
+    <!-- 展示历史出差报销记录 -->
+    <h4>我的出差报销申请记录</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>申请时间</th>
+                <th>报销金额</th>
+                <th>用途说明</th>
+                <th>状态</th>
+                <th>附件</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for record in records %}
+            <tr>
+                <td>{{ record.submit_time }}</td>
+                <td>{{ record.amount }}</td>
+                <td>{{ record.description }}</td>
+                <td>{{ record.status }}</td>
+                <td>
+                    {% if record.file %}
+                        <a href="{{ record.file.url }}" target="_blank">查看附件</a>
+                    {% else %}
+                        无附件
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">暂无出差报销记录</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

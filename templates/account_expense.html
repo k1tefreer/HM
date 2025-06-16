@@ -1,0 +1,102 @@
+<!-- 例如，在 "出差报销申请管理" 页面 -->
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+
+    <style>
+    /* 彩色标题 */
+    .colored-title {
+        display: flex;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .colored-title span:nth-child(1) {
+        color: red;
+    }
+
+    .colored-title span:nth-child(2) {
+        color: orange;
+    }
+
+    .colored-title span:nth-child(3) {
+        color: #5e5e5e;
+    }
+
+    .colored-title span:nth-child(4) {
+        color: green;
+    }
+
+    .colored-title span:nth-child(5) {
+        color: blue;
+    }
+
+    /* 状态列的背景色 */
+    .status-approved {
+        background-color: lightgreen;
+    }
+
+    .status-rejected {
+        background-color: lightcoral;
+    }
+
+    .status-pending {
+        background-color: lightyellow;
+    }
+    </style>
+    <h3 class="colored-title">
+        <span>出</span>
+        <span>差</span>
+        <span>报</span>
+        <span>销</span>
+        <span>管理</span>
+    </h3>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>申请人</th>
+                    <th>报销金额</th>
+                    <th>报销说明</th>
+                    <th>提交时间</th>
+                    <th>状态</th>
+                    <th>附件</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for record in expense_claims %}
+                <tr>
+                    <td>{{ record.user.name }}</td>
+                    <td>{{ record.amount }}</td>
+                    <td>{{ record.description }}</td>
+                    <td>{{ record.submit_time }}</td>
+                    <td>{{ record.status }}</td>
+                    <td>
+                        {% if record.file %}
+                            <a href="{{ record.file.url }}" target="_blank">查看附件</a>
+                        {% else %}
+                            无附件
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if record.status == 'pending' %}
+                            <form method="POST" action="{% url 'approve_expense' record.id %}">
+                                {% csrf_token %}
+                                <button type="submit" name="status" value="approved" class="btn btn-success">批准</button>
+                                <button type="submit" name="status" value="rejected" class="btn btn-danger">拒绝</button>
+                            </form>
+                        {% else %}
+                            已处理
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

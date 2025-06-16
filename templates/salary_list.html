@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-usd" aria-hidden="true"></span>
+            工资管理
+        </div>
+        <div style="margin-bottom: 10px">
+            <a class="btn btn-success" href="/salary/add/">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                添加工资记录
+            </a>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>员工</th>
+                    <th>基本工资</th>
+                    <th>绩效</th>
+                    <th>年终奖</th>
+                    <th>迟到罚款</th>
+                    <th>税务</th>
+                    <th>五险一金</th>
+                    <th>实发工资</th>
+                    <th>工资月份</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for salary in salaries %}
+                <tr>
+                    <td>{{ salary.user.name }}</td>
+                    <td>{{ salary.base_salary }}</td>
+                    <td>{{ salary.performance_bonus }}</td>
+                    <td>{{ salary.year_end_bonus }}</td>
+                    <td>{{ salary.late_penalty }}</td>
+                    <td>{{ salary.tax }}</td>
+                    <td>{{ salary.pension|add:salary.medical_insurance|add:salary.unemployment_insurance|add:salary.housing_fund }}</td>
+                    <td>{{ salary.final_salary }}</td>
+                    <td>{{ salary.salary_month|date:"Y-m" }}</td>
+                    <td>
+                        <a class="btn btn-primary btn-xs" href="/salary/edit/{{ salary.id }}/">编辑</a>
+                        <a class="btn btn-danger btn-xs" href="/salary/delete/{{ salary.id }}/" onclick="return confirm('确定删除?');">删除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

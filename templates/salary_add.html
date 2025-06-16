@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+            添加工资记录
+        </div>
+        <div class="panel-body">
+            <form method="post" class="form-horizontal">
+                {% csrf_token %}
+
+                <label>员工：</label>
+                <select name="user" class="form-control" required>
+                    <option value="" selected disabled>请选择员工</option>
+                    {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.name }}</option>
+                    {% endfor %}
+                </select>
+
+                {{ form.as_p }}
+
+                <button type="submit" class="btn btn-success">提交工资记录</button>
+                <a href="/salary/list/" class="btn btn-default">返回工资列表</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading" style="position: relative;">
+                <h3 class="panel-title mb-0">城市列表</h3>
+                <!-- 新建城市按钮 -->
+                <a href="{% url 'city_add' %}" class="btn btn-success btn-sm" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">新建城市</a>
+            </div>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Logo</th>
+                        <th>名称</th>
+                        <th>人口</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for city in page_obj %}
+                        <tr>
+                            <td>{{ city.id }}</td>
+                            <td><img src="/media/{{ city.img }}" style="height: 80px;"></td>
+                            <td>{{ city.name }}</td>
+                            <td>{{ city.count }}</td>
+                            <td>
+                                <a href="{% url 'city_edit' city.id %}" class="btn btn-primary btn-xs">编辑</a>
+                                <a href="{% url 'city_delete' city.id %}" class="btn btn-danger btn-xs">删除</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1">&laquo; 第一页</a>
+                            <a href="?page={{ page_obj.previous_page_number }}">上一页</a>
+                        {% endif %}
+                        <span class="current">
+                            第 {{ page_obj.number }} 页，共 {{ page_obj.paginator.num_pages }} 页。
+                        </span>
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}">下一页</a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}">最后一页 &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

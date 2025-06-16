@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading" style="position: relative;">
+                <h3 class="panel-title mb-0">上传文件列表</h3>
+                <!-- 上传文件的表单 -->
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="avatar"></label>
+                        <div class="file-upload-container">
+                            <input type="file" class="form-control upload-file" name="avatar" required>
+                            <label class="upload-label" for="avatar">选择文件</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">上传文件</button>
+                </form>
+            </div>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>文件名</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for file in uploaded_files %}
+                        <tr>
+                            <td>{{ file }}</td>
+                            <td>
+                                <!-- 点击查看文件 -->
+                                <a href="/media/{{ file }}" target="_blank" class="btn btn-info btn-xs">查看文件</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* 上传文件控件容器 */
+        .file-upload-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* 隐藏原始的上传文件控件 */
+        .upload-file {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* 美化自定义的选择文件按钮 */
+        .upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f0f0f0; /* 修改为浅灰色背景 */
+            color: #333;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            border: 1px solid #ccc; /* 增加边框 */
+        }
+
+        .upload-label:hover {
+            background-color: #e0e0e0; /* hover时变浅 */
+        }
+
+        .upload-label:active {
+            background-color: #c0c0c0; /* active时变暗 */
+        }
+
+        /* 控制输入框和按钮的样式 */
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}

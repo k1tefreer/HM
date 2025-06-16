@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>员工端 | 人力资源管理系统</title>
+    <link rel="stylesheet"
+          href="/static/plugins/bootstrap-3.4.1-dist/bootstrap-3.4.1-dist/css/bootstrap.min.css">
+    <style>
+        .navbar {
+            border-radius: 0;
+            position: relative;
+            z-index: 100;
+        }
+
+        .marquee-container {
+            width: 100%;
+            height: 50px;
+            overflow: hidden;
+            white-space: nowrap;
+            background-color: peru;
+            padding: 15px 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .marquee-text {
+            display: inline-block;
+            font-size: 26px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 0 5px #FFD700, 0 0 10px #FF4500;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%) translateX(100%);
+            white-space: nowrap;
+            will-change: transform;
+            animation: marquee 8s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateY(-50%) translateX(100vw);
+            }
+            100% {
+                transform: translateY(-50%) translateX(-100%);
+            }
+        }
+
+        .magnetic-container {
+            position: fixed;
+            top: 50px;
+            height: calc(100vh - 50px);
+            width: 120px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-auto-rows: 20px;
+            gap: 5px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .magnetic-container.left {
+            left: 10px;
+        }
+
+        .magnetic-container.right {
+            right: 10px;
+        }
+
+        .magnetic-ball {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color: purple;
+            animation: colorCycle 2s infinite alternate;
+        }
+
+        @keyframes colorCycle {
+            0% {
+                background-color: purple;
+            }
+            25% {
+                background-color: red;
+            }
+            50% {
+                background-color: green;
+            }
+            75% {
+                background-color: gold;
+            }
+            100% {
+                background-color: orange;
+            }
+        }
+    </style>
+    {% block css %}{% endblock %}
+</head>
+<body>
+
+<!-- 跑马灯 -->
+<div class="marquee-container">
+    <span class="marquee-text">欢迎使用员工端 - 人力资源管理系统</span>
+</div>
+
+<!-- 顶部导航栏 -->
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">员工端 · 人力资源管理系统</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">{{ request.session.info.name }}</a></li>
+            <li><a href="/logout/">注销</a></li>
+        </ul>
+
+        <!-- 员工菜单导航 -->
+        <ul class="nav navbar-nav">
+            <li><a href="/leave_overtime/">请假 / 加班申请</a></li>
+            <li><a href="/resign/">离职申请</a></li>
+            <li><a href="/expense/">出差报销管理</a></li>
+            <li><a href="/user/profile/">个人信息</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+<!-- 磁吸小球 -->
+<div class="magnetic-container left"></div>
+<div class="magnetic-container right"></div>
+
+<script src="/static/js/jquery-3.7.0.min.js"></script>
+<script src="/static/plugins/bootstrap-3.4.1-dist/bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
+<script src="/static/js/gsap.js"></script>
+<script>
+    function createBalls(container) {
+        for (let i = 0; i < 300; i++) {
+            let ball = document.createElement("div");
+            ball.classList.add("magnetic-ball");
+            container.appendChild(ball);
+        }
+    }
+
+    createBalls(document.querySelector(".magnetic-container.left"));
+    createBalls(document.querySelector(".magnetic-container.right"));
+
+    document.addEventListener("mousemove", function (event) {
+        document.querySelectorAll(".magnetic-ball").forEach(ball => {
+            const rect = ball.getBoundingClientRect();
+            const dx = event.clientX - (rect.left + rect.width / 2);
+            const dy = event.clientY - (rect.top + rect.height / 2);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 100) {
+                gsap.to(ball, {x: dx * 0.3, y: dy * 0.3, duration: 0.3});
+            } else {
+                gsap.to(ball, {x: 0, y: 0, duration: 0.5});
+            }
+        });
+    });
+</script>
+{% block js %}{% endblock %}
+</body>
+</html>

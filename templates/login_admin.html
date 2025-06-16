@@ -1,0 +1,101 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet"
+          href="{% static 'plugins/bootstrap-3.4.1-dist/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+
+    <script src="{% static 'js/jquery-3.7.0.min.js' %}"></script>
+
+    <style>
+
+        /* 添加背景图片 */
+        body {
+            background-image: url("{% static 'image/111.jpg' %}"); /* 背景图路径 */
+            background-size: cover; /* 确保背景图填充整个屏幕 */
+            background-position: center; /* 背景图居中 */
+            background-repeat: no-repeat; /* 不重复背景图 */
+            height: 100vh; /* 让页面充满视口 */
+        }
+
+
+        .account {
+            width: 400px;
+            border: 1px solid greenyellow;
+            border-radius: 5px;
+            box-shadow: 5px -5px 20px #aaa;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 100px;
+            padding: 20px 40px;
+
+        <!-- 阴影部分 垂直方向 水平方向 模糊距离 -->
+        }
+
+        .account h2 {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="account">
+    <h2>管理员登录</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>用户名</label>
+            {{ form.username }}
+            <span style="color: red;">{{ form.username.errors.0 }}</span>
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            {{ form.password }}
+            <span style="color: red;">{{ form.password.errors.0 }}</span>
+        </div>
+        <div class="form-group">
+            <label for='id_code'>图片验证码</label>
+            <div class="row">
+                <div class="col-xs-7">
+                    {{ form.code }}
+                    <span style="color: red;">{{ form.code.errors.0 }}</span>
+                </div>
+
+                <div class="col-xs-5" onclick="getCode()" style="cursor: crosshair;">
+                    <img id="image_code" src="/image/code/" style="width: 125px">
+                </div>
+            </div>
+        </div>
+
+        <input type="submit" value="登 录" class="btn btn-success">
+    </form>
+</div>
+
+<script>
+    function getCode() {
+        // location.reload()
+        $.ajax({
+            url: "/image/code/",
+            type: "GET",
+            xhrFields: {
+                // 这将确保响应类型是 blob，而不是默认的 text
+                responseType: 'blob'
+            },
+            success: (res) => {
+                console.log(res)
+                let url = window.URL.createObjectURL(res)
+                console.log(url)
+                let code_el = document.querySelector('#image_code')
+                code_el.src = url
+            }
+        })
+
+    }
+</script>
+
+
+</body>
+</html>

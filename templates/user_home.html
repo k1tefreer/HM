@@ -1,0 +1,15 @@
+{% extends 'userlayout.html' %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h2>欢迎，{{ request.session.info.name }}！</h2>
+        <p>这是人力资源管理系统员工端首页。</p>
+        <hr>
+        <p>您可以通过上方导航栏，进行：</p>
+        <ul>
+            <li>请假 / 加班申请</li>
+            <li>离职申请</li>
+            <li>出差费用报销</li>
+        </ul>
+    </div>
+{% endblock %}

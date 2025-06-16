@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div style="margin-bottom: 10px">
+            <input id="btnFetchNews" type="button" value="获取新闻头条" class="btn btn-info">
+        </div>
+
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                新闻头条
+            </div>
+
+            <!-- Table -->
+            <table class="table" id="news-list-table" style="display:none">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>新闻标题</th>
+                        <th>链接</th>
+                    </tr>
+                </thead>
+                <tbody id="news-list-body">
+                    <!-- 新闻列表将在这里动态插入 -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    $(function () {
+        bindBtnFetchNewsEvent();
+    });
+
+    function bindBtnFetchNewsEvent() {
+        $("#btnFetchNews").click(function () {
+            $.ajax({
+                url: "/news/list/",  // 后端接口获取新闻数据
+                type: "GET",
+                dataType: "JSON",
+                success: function (res) {
+                    if (res.news) {
+                        var newsListBody = $("#news-list-body");
+                        newsListBody.empty();  // 清空之前的数据
+
+                        res.news.forEach(function (newsItem, index) {
+                            var row = "<tr>" +
+                                      "<td>" + (index + 1) + "</td>" +
+                                      "<td><a href='" + newsItem.link + "' target='_blank'>" + newsItem.title + "</a></td>" +
+                                      "<td><a href='" + newsItem.link + "' target='_blank'>" + newsItem.link + "</a></td>" +
+                                      "</tr>";
+                            newsListBody.append(row);
+                        });
+
+                        // 显示新闻列表
+                        $("#news-list-table").show();
+                    } else {
+                        alert("未能加载新闻数据");
+                    }
+                },
+                error: function () {
+                    alert("请求失败，请重试");
+                }
+            });
+        });
+    }
+</script>
+{% endblock %}
